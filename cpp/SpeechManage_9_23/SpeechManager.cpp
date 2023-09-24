@@ -15,6 +15,9 @@ void SpeechManager::InitTemplate()
     v2.clear();
     vVictor.clear();
     m_Speaker.clear();
+
+    fileIsEmpty = true;
+    loadSpeech();
 }
 
 void SpeechManager::InitSpeaker()
@@ -202,6 +205,123 @@ void SpeechManager::ShowScore()
     system("pause");
 }
 
+void SpeechManager::saveSpeech()
+{
+    ofstream ofs;
+
+    ofs.open("speech.csv", ios::out | ios::app);
+
+    for(vector<int>::iterator it = vVictor.begin(); it != vVictor.end(); it++)
+    {
+        ofs << *it << "," << m_Speaker[*it].m_Score[1] << ",";
+    }
+    
+    ofs << endl;
+
+    ofs.close();
+
+    fileIsEmpty = false;
+    cout << "------------------Record have been saved--------------------";
+    cout << endl;
+
+    system("pause");
+}
+
+void SpeechManager::loadSpeech()
+{
+    // if(fileIsEmpty)
+    // {
+    //     cout << "File is empty!!!";
+    //     return;
+    // }
+
+    ifstream ifs;
+    ifs.open("speech.csv", ios::in);
+
+    if(!ifs.is_open())
+    {
+        this->fileIsEmpty = true;
+        ifs.close();
+        return;
+    }
+
+    char ch;
+    ifs >> ch;
+    if(ifs.eof())
+    {
+        this->fileIsEmpty = true;
+        ifs.close();
+        return;
+    }
+
+    ifs.putback(ch);
+    this->fileIsEmpty = false;
+    
+    string data;
+    int index = 1;
+    //ifs >> data;
+    //cout << data;
+
+    while(ifs >> data)
+    {
+        vector<string> tempV;
+        
+        int pos = -1;
+        int start = 0;
+
+        while(true)
+        {
+            pos = data.find(",", start);
+
+            if(pos == -1)
+            {
+                break;
+            }
+
+            string temp = data.substr(start, pos - start);
+
+            tempV.push_back(temp);
+
+            start = pos + 1;
+        }
+
+        m_Record.insert(make_pair(index++, tempV));
+    }
+}
+
+void SpeechManager::showRecord()
+{
+    if(this->fileIsEmpty)
+    {
+        cout << "File is empty!!!" << endl;
+        return;
+    }
+
+    // for(map<int, vector<string>>::iterator it = m_Record.begin(); it != m_Record.end(); it++)
+    // {
+    //     cout << "The " << it->first << " session:" << endl;
+    //     cout << "number:" << it->s
+    // }
+    for(int i = 0; i < m_Record.size(); i++)
+    {
+        cout << "The " << i+1 << "session:" << endl;
+        cout << "Champion:  " << endl
+            << "Number:" << m_Record[i+1][0]
+            << " Score:" << m_Record[i+1][1]
+            << endl
+            << "Runner-up:  " <<endl
+            << "Number:" << m_Record[i+1][2]
+            << " Score:" << m_Record[i+1][3]
+            <<endl
+            << "Second runner-up:  " << endl
+            << "Number:" << m_Record[i+1][4]
+            << " Score:" << m_Record[i+1][5]
+            <<endl;
+        cout << "---------------------------------" << endl;
+    }
+    system("pause");
+}
+
 void SpeechManager::startSpeech()
 {
     SpeechDraw();
@@ -218,6 +338,8 @@ void SpeechManager::startSpeech()
 
     ShowScore();
 
+    saveSpeech();
+
 
     cout << "This competition is over !!!" << endl;
     system("pause");
@@ -226,6 +348,21 @@ void SpeechManager::startSpeech()
 
     InitSpeaker();
 
+}
+
+void SpeechManager::deleteRecord()
+{
+    if(fileIsEmpty)
+    {
+        cout << "File is empty!!!" << endl;
+        return;
+    }
+
+    ofstream ofs("speech.csv", ios::trunc);
+
+    ofs.close();
+
+    cout << "Everything is cleaned" << endl;
 }
 
 void SpeechManager::exit_SpeechManager()

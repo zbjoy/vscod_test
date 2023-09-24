@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <deque>
 #include <numeric>
+#include <fstream>
 
 using namespace std;
 
@@ -29,7 +30,15 @@ public:
 
     void ShowScore();
 
+    void saveSpeech();
+
+    void loadSpeech();
+
+    void showRecord();
+
     void startSpeech();
+
+    void deleteRecord();
 
     void exit_SpeechManager();
    
@@ -46,6 +55,10 @@ private:
     vector<int> vVictor;
 
     map<int, Speaker> m_Speaker;
+
+    map<int, vector<string>> m_Record;
+
+    bool fileIsEmpty;
 
 };
 

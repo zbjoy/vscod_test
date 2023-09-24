@@ -21,8 +21,10 @@ int main()
             sm.startSpeech();
             break;
         case 2:
+            sm.showRecord();
             break;
         case 3:
+            sm.deleteRecord();
             break;
         case 0:
             sm.exit_SpeechManager();
