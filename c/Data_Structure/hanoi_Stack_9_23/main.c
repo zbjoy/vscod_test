@@ -15,46 +15,88 @@ void hanoi(int n, char A, char B, char C)
     }
 }
 
-void hanoi_Stack(int n, char X, char Y, char Z)
+// void hanoi_Stack(int n, char X, char Y, char Z)
+// {
+//     datatype e;
+//     datatype temp;
+//     char t;
+//     e.n = n;
+//     e.X = X;
+//     e.Y = Y;
+//     e.Z = Z;
+//     SeqStack s;
+//     Init_SeqStack(&s);
+//     Push_SeqStack(&s, &e);
+//     while(!Empty_SeqStack(&s))
+//     {
+//         GetTop_SeqStack(&s, &temp);
+//         while(temp.n > 1)
+//         {
+//             e.n = temp.n - 1;
+//             e.X = temp.X;
+//             e.Y = temp.Z;
+//             e.Z = temp.Y;
+//             Push_SeqStack(&s, &e);
+//             GetTop_SeqStack(&s, &temp);
+//         }
+
+//         printf("%c-->%c\n", temp.X, temp.Z);
+//         Pop_SeqStack(&s, &temp);
+//         GetTop_SeqStack(&s, &temp);
+//         if(!Empty_SeqStack(&s))
+//         {
+//             printf("%c-->%c\n", temp.X, temp.Z);
+//             Pop_SeqStack(&s, &temp);
+//             e.n = temp.n - 1;
+//             //Push_SeqStack(&s, &e);
+//             t = temp.X;
+//             e.X = temp.Y;
+//             e.Y = t;
+
+//             e.Z = temp.Z;
+
+//             Push_SeqStack(&s, &e);
+//         }
+//     }
+// }
+
+void hanoi_Stack(int n,char X, char Y, char Z)
 {
-    datatype e;
+    SeqStack s;
+    Init_SeqStack(&s);
+
+    datatype tempTop;
     datatype temp;
-    char t;
+    datatype e;
     e.n = n;
     e.X = X;
     e.Y = Y;
     e.Z = Z;
-    SeqStack s;
-    Init_SeqStack(&s);
     Push_SeqStack(&s, &e);
+
     while(!Empty_SeqStack(&s))
     {
-        GetTop_SeqStack(&s, &temp);
-        while(temp.n > 1)
+        GetTop_SeqStack(&s, &tempTop);
+        while(tempTop.n > 1)
         {
-            e.n = temp.n - 1;
-            e.X = temp.X;
-            e.Y = temp.Z;
-            e.Z = temp.Y;
+            e.n = tempTop.n - 1;
+            e.X = tempTop.X;
+            e.Y = tempTop.Z;
+            e.Z = tempTop.Y;
             Push_SeqStack(&s, &e);
-            GetTop_SeqStack(&s, &temp);
+            GetTop_SeqStack(&s, &tempTop);
         }
 
-        printf("%c-->%c\n", temp.X, temp.Z);
+        printf("%c-->%c", tempTop.X, tempTop.Z);
         Pop_SeqStack(&s, &temp);
-        GetTop_SeqStack(&s, &temp);
+
         if(!Empty_SeqStack(&s))
         {
-            printf("%c-->%c\n", temp.X, temp.Z);
-            Pop_SeqStack(&s, &temp);
-            e.n = temp.n - 1;
-            //Push_SeqStack(&s, &e);
-            t = temp.X;
-            e.X = temp.Y;
-            e.Y = t;
-
-            e.Z = temp.Z;
-
+            GetTop_SeqStack(&s, &tempTop);
+            printf("%c-->%c", tempTop.X, tempTop.Z);
+            e.n = tempTop.n - 1;
+            e.X = tempTop.Y;
+            e.Y = tempTop.X;
             Push_SeqStack(&s, &e);
         }
     }
