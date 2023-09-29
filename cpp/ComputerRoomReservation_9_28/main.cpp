@@ -37,6 +37,7 @@ void ManagerMenu(Identity* &manager)
     Manager* man = (Manager*)manager;
     int select = 0;
 
+    cout << "Welcom admin " << manager->m_Name << " log on!" << endl;
     while(true)
     {
         //管理员菜单
@@ -80,6 +81,7 @@ void TeacherMenu(Identity* &teacher)
     Teacher* tea = (Teacher*)teacher;
     int select = 0;
 
+    cout << "Welcom teacher " << teacher->m_Name << " log on!" << endl;
     while(true)
     {           
         //教师菜单
@@ -116,6 +118,7 @@ void StudentMenu(Identity* &student)
     Student* stu = (Student*)student;
     int select = 0;
     
+    cout << "Welcom student " << student->m_Name << " log on!" << endl;
     while(true)
     {
         student->operMenu();

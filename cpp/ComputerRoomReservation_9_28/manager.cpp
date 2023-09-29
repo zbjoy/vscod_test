@@ -20,7 +20,6 @@ Manager::Manager(string name, string pwd)
 //选择菜单
 void Manager::operMenu()
 {
-    cout << "Welcom admin" << this->m_Name << "log on!" << endl;
     cout << "\t\t-------------------------------------------------------" << endl;
     cout << "\t\t|                                                     |" << endl;
     cout << "\t\t|              1 . Add account                        |" << endl;

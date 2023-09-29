@@ -2,10 +2,15 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+#include <fstream>
 
 using namespace std;
 
 #include "Identity.h"
+#include "computerRoom.h"
+#include "globalFile.h"
+#include "orderFile.h"
 
 class Student :public Identity
 {
@@ -34,5 +39,8 @@ public:
 
     //学生学号
     int m_Id;
+
+    //机房信息容器
+    vector<ComputerRoom> vCom;
 
 };

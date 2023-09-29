@@ -17,7 +17,6 @@ Teacher::Teacher(int empId, string name, string pwd)
 //菜单界面
 void Teacher::operMenu()
 {
-    cout << "Welcom teacher" << this->m_Name << "log on!" << endl;
     cout << "\t\t-------------------------------------------------------" << endl;
     cout << "\t\t|                                                     |" << endl;
     cout << "\t\t|              1 . View all appointments              |" << endl;
@@ -32,7 +31,7 @@ void Teacher::operMenu()
 //查看所有预约
 void Teacher::showAllOrder()
 {
-
+    
 }
 
 //审核预约
