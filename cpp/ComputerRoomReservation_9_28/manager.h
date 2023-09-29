@@ -11,6 +11,7 @@ using namespace std;
 #include "student.h"
 #include "teacher.h"
 #include "globalFile.h"
+#include "ComputerRoom.h"
 
 class Manager :public Identity
 {
@@ -48,5 +49,8 @@ public:
 
     //教师容器
     vector<Teacher> vTea;
+
+    //机房容器
+    vector<ComputerRoom> vCom;
 
 };

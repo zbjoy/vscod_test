@@ -342,6 +342,7 @@ void LoginIn(string fileName, int type)
             fwrite(timeinfo, sizeof(struct tm), 1, pfwrite);
             fclose(pfwrite);
             pfwrite = NULL;
+            ifs.close();
 
             system("pause");
             system("cls");

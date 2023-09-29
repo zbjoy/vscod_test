@@ -166,6 +166,26 @@ void Manager::initVector()
     }
     //cout << "Now teacher number: " << vTea.size() << endl;
     ifs.close();
+
+    //读取机房文件
+    ifs.open(COMPUTER_FILE, ios::in);
+    if(!ifs.is_open())
+    {
+        cout << "initVector():: computerRoom.txt file read failure" << endl;
+        ifs.close();
+        return;
+    }
+
+    ComputerRoom TempC;
+
+    while(ifs >> TempC.m_ComId && ifs >> TempC.m_MaxNum)
+    {
+        vCom.push_back(TempC);
+    }
+
+    //cout << "Now computerroom counts is " << vCom.size() << endl;
+    ifs.close();
+
 }
 
 //检测重复
@@ -198,21 +218,106 @@ bool Manager::checkRepeat(int id, int type)
 //查看账号
 void Manager::showPerson()
 {
-    //cout << "Student "
-    for(vector<Student>::iterator it = vStu.begin(); it != vStu.end(); it++)
+
+    while(true)
     {
+        cout << "Please select the content to view" << endl;
+        cout << "1.View student content" << endl;
+        cout << "2.View teacher content" << endl;
+        cout << "3.View all content" << endl;
+        cout << "0.Exit" << endl;
+
+        int select = 0;
+        cin >> select;
+
+        if(select == 1)
+        {
+            cout << "-----------------------------------------------" << endl;
+
+            cout << "Student :" << endl;
+            for(vector<Student>::iterator it = vStu.begin(); it != vStu.end(); it++)
+            {
+                cout << "Student ID:" << it->m_Id << "  Name:" << it->m_Name << "  Password:" << it->m_Pwd << endl; 
+            }
+
+            cout << "-----------------------------------------------" << endl;
+            break;
+        }
+        else if(select == 2)
+        {
+            cout << "-----------------------------------------------" << endl;
+
+            cout << "Teacher:" << endl;
+            for(vector<Teacher>::iterator it = vTea.begin(); it != vTea.end(); it++)
+            {
+                cout << "Emplyee ID:" << it->m_EmpId <<"  Name:" << it->m_Name << "  Password:" << it->m_Pwd << endl;
+            }
+
+            cout << "-----------------------------------------------" << endl;
+            break;
+        }
+        else if (select == 3)
+        {
+            cout << "-----------------------------------------------" << endl;
+
+            cout << "Student :" << endl;
+            for(vector<Student>::iterator it = vStu.begin(); it != vStu.end(); it++)
+            {
+                cout << "Student ID:" << it->m_Id << "  Name:" << it->m_Name << "  Password:" << it->m_Pwd << endl; 
+            }
+
+            cout << "-----------------------------------------------" << endl;
+
+            cout << "Teacher:" << endl;
+            for(vector<Teacher>::iterator it = vTea.begin(); it != vTea.end(); it++)
+            {
+                cout << "Emplyee ID:" << it->m_EmpId <<" Name:" << it->m_Name << " Password:" << it->m_Pwd << endl;
+            }
+
+            cout << "-----------------------------------------------" << endl;
+            break;
+        }
+        else if(select == 0)
+        {
+            cout << "Exit successful!" << endl;
+            system("pause");
+            system("cls");
+            return;
+        }
+        else
+        {
+            cout << "Your enter is error, please enter again!" << endl;
+            system("pause");
+        }
 
     }
+    
+    system("pause");
+    system("cls");
 }
 
 //查看机房信息
 void Manager::showComputer()
 {
+    //int i = vCom.size();
+    cout << "The computerroom information is as follows" << endl;
+    for(vector<ComputerRoom>::iterator it = vCom.begin(); it != vCom.end(); it++)
+    {
+        cout << "Machine room number:" << it->m_ComId << "   Maximum capacity of the computer room:" << it->m_MaxNum << endl;
+    }
 
+    system("pause");
+    system("cls");
 }
 
 //清空预约记录
 void Manager::clearFile()
 {
+    ofstream ofs;
+    ofs.open(ORDER_FILE, ios::trunc);
+    ofs.close();
 
+    cout << "Clear successful!" << endl;
+    system("pause");
+    system("cls");
 }
