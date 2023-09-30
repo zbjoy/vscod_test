@@ -1,10 +1,12 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 #include "Identity.h"
+#include "orderFile.h"
 
 class Teacher :public Identity
 {

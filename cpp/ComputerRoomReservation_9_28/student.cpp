@@ -229,6 +229,9 @@ void Student::showAllOrder()
 
         cout << status << endl;
     }
+
+    system("pause");
+    system("cls");
 }
 
 //取消预约
