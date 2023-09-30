@@ -1,12 +1,27 @@
 #include "SeqList.h"
 
-int Push_SeqList(SeqList* head, char x[])
+int InsertByHead_SeqList(SeqList* head, char x[])
 {
     SeqList* s = (SeqList*)malloc(sizeof(SeqList));
     strcpy(s->Name, x);
     s->next = head->next;
     head->next = s;
 
+    return 1;
+}
+
+int InsertByRear_SeqList(SeqList* head, char x[])
+{
+    while(head->next != NULL)
+    {
+        head = head->next;
+    }
+
+    SeqList* s = (SeqList*)malloc(sizeof(SeqList));
+    strcpy(s->Name, x);
+    s->next = head->next;
+    head->next = s;    
+    
     return 1;
 }
 
@@ -33,7 +48,7 @@ int printAll_SeqList(SeqList* head)
         head = head->next;
         if(head != NULL)
         {
-            printf("%s\n", head->Name);
+            printf("%s", head->Name);
         }
     }
 
