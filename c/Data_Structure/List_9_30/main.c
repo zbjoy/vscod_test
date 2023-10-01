@@ -37,6 +37,11 @@ void test03() //循环链表
     printAll_CircularList(head);
 }
 
+void test04() //双向链表 ***
+{
+    
+}
+
 int main()
 {
     test01(); //头插法单链表
