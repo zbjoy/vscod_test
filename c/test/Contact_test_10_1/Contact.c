@@ -30,13 +30,19 @@ int Delete_Contact(Contact* head, int pos)
 
     int i = 0;
 
-    while(--pos)
+    while(--pos && head->next != NULL)
     {
         head = head->next;
     }
 
+    if(head->next == NULL)
+    {
+        return 0;
+    }
+
     s = head->next;
     head->next = s->next;
+    s->next->rear = head;
     free(s);
 
     return 1;
@@ -46,11 +52,11 @@ int PrintAll_Contact(Contact* head)
 {
     // Contact* s = (Contact*)malloc(sizeof(Contact));
     // s = head;
-
-    while(head != NULL)
+    //head = head->next;
+    while(head->next->next != NULL)
     {
         head = head->next;
-        printf("%-5s%-5d%-3s%-20s%-20s\n",
+        printf("%-5s%-5d%-5s%-20s%-20s\n",
              head->peo->Name,
              head->peo->Age, 
              head->peo->Sex, 
@@ -67,7 +73,7 @@ int FindByName_Contact(Contact* head, char x[])
     // s = head->next;
     int index = 0;
 
-    while(head != NULL)
+    while(head->next->next != NULL)
     {
         head = head->next;
         index++;
@@ -95,7 +101,7 @@ int Print_Contact(Contact* head, int pos)
         return 0;
     }
            
-    printf("%-5s%-5d%-3s%-20s%-20s\n",
+    printf("%-5s%-5d%-5s%-20s%-20s\n",
             head->peo->Name,
             head->peo->Age, 
             head->peo->Sex, 
@@ -137,4 +143,32 @@ void AddContact(Contact* rear)
     scanf("%s", tempPeo.Tele);
 
     Push_Contact(rear, &tempPeo);
+}
+
+void ViewContact(Contact* head)
+{
+    printf("%-5s%-5s%-5s%-20s%-20s\n", "Name", "Age", "Sex", "Native", "Telephone");
+    PrintAll_Contact(head);
+}
+
+void DeleteContact(Contact* head)
+{
+    char Name[NAMESIZE];
+    printf("Please enter name whitch you want to delete:");
+    scanf("%s", Name);
+
+    int pos = FindByName_Contact(head, Name);
+
+    Delete_Contact(head, pos);
+
+    printf("Delete successful\n");
+
+    system("pause");
+    system("cls");
+
+}
+
+void FindContact(Contact* head)
+{
+
 }

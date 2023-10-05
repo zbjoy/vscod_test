@@ -23,11 +23,14 @@ int main()
         case 1: //添加联系人
             AddContact(rear);
             break;
-        case 2:
+        case 2: //删除联系人
+            DeleteContact(head);
             break;
-        case 3:
+        case 3: //查找联系人
+            FindContact(head);
             break;
-        case 4:
+        case 4: //显示联系人
+            ViewContact(head);
             break;
         case 0:
             printf("GoodBye!\n");

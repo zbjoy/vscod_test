@@ -36,3 +36,9 @@ int Print_Contact(Contact* rear, int pos);
 void Menu();
 
 void AddContact(Contact* rear);
+
+void ViewContact(Contact* head);
+
+void DeleteContact(Contact* head);
+
+void FindContact(Contact* head);
