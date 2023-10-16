@@ -77,3 +77,54 @@ int LeafNode_Num(BiTree root)
         return num;
     }
 }
+
+int HeightBiTree_Num(BiTree root)
+{
+    static int MaxNum = 0;
+    static int Num = 0;
+
+    if(root == NULL)
+    {
+        return MaxNum;
+    }
+    else if(root->lchild != NULL)
+    {
+        Num++;
+        HeightBiTree_Num(root->lchild);
+    }
+    else if(root->lchild == NULL)
+    {
+        if(root->rchild == NULL)
+        {
+            Num++;
+            if(MaxNum < Num)
+            {
+                MaxNum = Num;
+            }
+            Num--;
+            return MaxNum;
+        }
+        else
+        {
+            Num++;
+            HeightBiTree_Num(root->rchild);
+        }
+    }
+}
+
+// int isCompleteBiTree(BiTree root)
+// {
+//     // static int isCom = 1;
+//     // static int temp = 0;
+
+//     // if(root == NULL)
+//     // {
+//     //     return isCom;
+//     // }
+//     // else if(root->lchild == NULL && temp == 0)
+//     // {
+//     //     temp = 1;
+//     // }
+
+//     // return isCom;
+// }

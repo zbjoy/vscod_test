@@ -22,3 +22,7 @@ BiTree DeleteRightTree(BiTree curr);
 void CreateBiTree(BiTree* root);
 
 int LeafNode_Num(BiTree root);
+
+int HeightBiTree_Num(BiTree root);
+
+// int isCompleteBiTree(BiTree root);
