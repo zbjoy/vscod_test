@@ -102,10 +102,24 @@ void hanoi_Stack(int n,char X, char Y, char Z)
     }
 }
 
+// void hanoi(int i, char A, char B, char C)
+// {
+//     if(i == 1)
+//     {
+//         printf("from %c to %c\n", A, C);
+//     }
+//     else
+//     {
+//         hanoi(i - 1, A, C, B);
+//         printf("from %c to %c\n", A, C);
+//         hanoi(i - 1, B, A, C);
+//     }
+// }
+
 int main()
 {
     hanoi(3, 'A', 'B', 'C');
     printf("\n");
-    hanoi_Stack(3, 'A', 'B', 'C');
+    //hanoi_Stack(3, 'A', 'B', 'C');
     return 0;
 }
