@@ -94,6 +94,7 @@ void InsertEdges(Graph* G, char x1, char x2, int ret)
                         G->edges[tempVexs2][tempVexs1] = 1;
                     }
                     G->numEdges++;
+                    return;
                 }
             }
         }
@@ -106,7 +107,7 @@ void Print_Graph(const Graph const* G)
 {
     printf("\n");
     int i = 0;
-    printf(" ");
+    printf("  ");
     for(; i < G->numvexs; i++)
     {
         printf("%c ", G->vexs[i]);
@@ -122,16 +123,160 @@ void Print_Graph(const Graph const* G)
     }
 }
 
+/*    邻接表    */
+#define NMAX 100
 
-int main()
+
+typedef struct node1
+{
+    int adjvex;
+    struct node1* next;
+}EdgeNode;
+
+typedef struct vnode
+{
+    DataType vertex;
+    EdgeNode* firstedge;
+}VertexNode;
+
+typedef struct
+{
+    VertexNode Adjlist[MAXSIZE];
+    int numVexs;
+    int numEdges;
+}LKGraph;
+
+void CreateGraph1(LKGraph* G, int ret)
+{
+    printf("Please enter graph vertex nums: ");
+    scanf("%d", &G->numVexs);
+    printf("Please enter graph edgenode nums: ");
+    scanf("%d", &G->numEdges);
+    int i = 0;
+
+    printf("Please enter vertex nodes:\n");
+    for(; i < G->numVexs; ++i)
+    {
+        fflush(stdin);
+        scanf("%c", &G->Adjlist[i]);
+        G->Adjlist[i].firstedge = NULL;
+    }
+
+    printf("Please enter edge nodes:\n");
+
+    int j = 0;
+    int v1;
+    int v2;
+    for(; j < G->numEdges; ++j)
+    {
+        printf("v1, v2 = ");
+        scanf("%d%d", &v1, &v2);
+
+        EdgeNode* p = (EdgeNode*)malloc(sizeof(EdgeNode));
+
+        p->adjvex = v2;
+        p->next = G->Adjlist[v1].firstedge;
+        G->Adjlist[v1].firstedge = p;
+
+        if(!ret)
+        {
+            p = (EdgeNode*)malloc(sizeof(EdgeNode));
+            
+            p->adjvex = v1;
+            p->next = G->Adjlist[v2].firstedge;
+            G->Adjlist[v2].firstedge = p;
+        }
+    }
+
+}
+
+//插入顶点
+void InsertVertes1(LKGraph* G, DataType data,  int ret)
+{
+    if(G->numVexs < MAXSIZE)
+    {
+        VertexNode s;
+        s.vertex = data;
+        s.firstedge = NULL;
+
+        G->Adjlist[G->numVexs++] = s; 
+    }
+}
+
+//插入边
+void InsertEdges1(LKGraph* G, char x1, char x2, int ret)
+{
+    int i = 0;
+    int j = 0;
+
+    for(; i < G->numVexs; i++)
+    {
+        if(G->Adjlist[i].vertex == x1)
+        {
+            for(; j < G->numVexs; j++)
+            {
+                if(G->Adjlist[j].vertex == x2)
+                {
+                    EdgeNode* s = (EdgeNode*)malloc(sizeof(EdgeNode));
+
+                    s->adjvex = j;
+                    s->next = G->Adjlist[i].firstedge;
+                    G->Adjlist[i].firstedge = s;
+
+                    if(!ret)
+                    {
+                        s = (EdgeNode*)malloc(sizeof(EdgeNode));
+
+                        s->adjvex = i;
+                        s->next = G->Adjlist[j].firstedge;
+                        G->Adjlist[j].firstedge = s;
+                    }
+                    return;
+                }
+            }
+            
+        }
+    }
+}
+
+void Print_LKGraph(LKGraph* G)
+{
+    int i = 0;
+    for(; i < G->numVexs; i++)
+    {
+        printf("%d  %c: ", i, G->Adjlist[i].vertex);
+        while(G->Adjlist[i].firstedge != NULL)
+        {
+            printf("%c ", G->Adjlist[(G->Adjlist[i].firstedge)->adjvex].vertex);
+            G->Adjlist[i].firstedge = G->Adjlist[i].firstedge->next;
+        }
+        printf("\n");
+    }
+}
+
+/*    邻接矩阵    */
+void test01()
 {
     Graph g;
     Create_Graph(&g, Arc);
     Print_Graph(&g);
-    char temp = 'h';
+    char temp = 'i';
     InsertVexs(&g, temp);
     Print_Graph(&g);
     InsertEdges(&g, g.vexs[3], g.vexs[1], Arc);
     Print_Graph(&g);
+}
+/*    邻接表    */
+void test02()
+{
+    LKGraph g;
+    CreateGraph1(&g, Edge);
+    Print_LKGraph(&g);
+}
+
+int main()
+{
+    //test01(); //邻接矩阵
+    test02(); //邻接表
     return 0;
 }
