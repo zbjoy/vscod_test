@@ -272,11 +272,16 @@ void test02()
     LKGraph g;
     CreateGraph1(&g, Edge);
     Print_LKGraph(&g);
+    char temp = 'i';
+    InsertVertes1(&g, temp, Edge);
+    Print_LKGraph(&g);
+    InsertEdges1(&g, g.Adjlist[3].vertex, g.Adjlist[1].vertex, Edge);
+    Print_LKGraph(&g);
 }
 
 int main()
 {
-    //test01(); //邻接矩阵
+    test01(); //邻接矩阵
     test02(); //邻接表
     return 0;
 }
