@@ -15,10 +15,16 @@ int isPalindrome(struct ListNode* head){
     struct ListNode* tempHead = head;
     while(tempHead != NULL)
     {
-        struct ListNode* next = tempHead->next;
-        tempHead->next = rear;
-        rear = tempHead;
-        tempHead = next;
+        // struct ListNode* next = tempHead->next;
+        // tempHead->next = rear;
+        // rear = tempHead;
+        // tempHead = next;
+
+        struct ListNode* temp = (struct ListNode*)malloc(sizeof(struct ListNode));
+        temp->val = tempHead->val;
+        temp->next = rear;
+        rear = temp;
+        tempHead = tempHead->next;
     }
 
     while(head != NULL)
@@ -57,4 +63,5 @@ int main()
 
     printf("%d\n", isPalindrome(head));
     return 0;
+
 }
