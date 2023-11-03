@@ -1,9 +1,13 @@
 #include <stdio.h>
+#include <string.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <winsock2.h>
 #pragma comment(lib, "WS2_32.lib")
 
-#define PRINTF(str) printf("[%s - %d]"#str"=%s", __func__, __LINE__, str);
+#define PRINTF(str) printf("[%s - %d]"#str"=%s\n", __func__, __LINE__, str);
 // void PRINTF(const char* str)
 // {
 //     printf("[%s - %d]%s", __func__, __LINE__, str);
@@ -137,6 +141,80 @@ void unimplement(int client)
     //向指定套接字， 发送一个提示还没有实现的错误页面
 }
 
+void not_Found(int client)
+{
+
+}
+
+void headers(int client)
+{
+    // 发送响应包的头信息
+    char buff[1024];
+
+    strcpy(buff, "HTTP/1.1 200 OK\r\n");
+    send(client, buff, strlen(buff), 0);
+
+    strcpy(buff, "Server: nhao/0.1\r\n");
+    send(client, buff, strlen(buff), 0);
+
+    strcpy(buff, "Content-type:text/html\n");
+    send(client, buff, strlen(buff), 0);
+
+    strcpy(buff, "\r\n");
+    send(client, buff, strlen(buff), 0);
+}
+
+void cat(int client, FILE* resourse)
+{
+    char buff[4096];
+    int count = 0;
+
+    while(1)
+    {
+        int ret = fread(buff, sizeof(char), sizeof(buff), resourse);
+        if(ret <= 0)
+        {
+            break;
+        }
+        send(client, buff, ret, 0);
+        count += ret;
+    }
+    
+    printf("send finshed, count = %d\n", count);
+
+}
+
+void server_File(int client, const char* fileName)
+{
+    int numChars = 1;
+    char buff[1024];
+
+    //把请求数据包的剩余数据行读完
+    while(numChars > 0 && strcmp(buff, "\n"))
+    {
+        numChars = get_Line(client, buff, sizeof(buff));
+        PRINTF(buff);
+    }
+
+    FILE* resourse = fopen(fileName, "r");
+    if(resourse == NULL)
+    {
+        not_Found(client);
+    }
+    else
+    {
+        // 正式发送资源给浏览器
+        headers(client);
+
+        // 发送请求的资源信息
+        cat(client, resourse);
+
+        PRINTF("resourse is over");
+    }
+
+    fclose(resourse);
+}
+
 //处理用户请求的线程函数
 DWORD WINAPI accept_Request(LPVOID arg)
 {
@@ -163,7 +241,7 @@ DWORD WINAPI accept_Request(LPVOID arg)
     PRINTF(method);
 
     //检查请求的方法， 本服务器是否支持
-    if(strcmp(method, "GET") && strcmp(method, "POST"))
+    if(stricmp(method, "GET") && stricmp(method, "POST"))
     {
         //向浏览器返回一个错误页面
         unimplement(client);
@@ -190,6 +268,44 @@ DWORD WINAPI accept_Request(LPVOID arg)
     url[i] = 0;
     PRINTF(url);
 
+    /// www.haha.com
+    //127.0.0.1/test.html
+    //url /test.html
+    //htdocs/index.html
+
+    char path[512] = "";
+    sprintf(path, "htdocs%s", url);
+
+    if(path[strlen(path) - 1] == '/')
+    {
+        strcat(path, "index.html");
+    }
+    PRINTF(path);
+
+    struct stat status;
+    int ret = stat(path, &status);
+    if(ret == -1)
+    {
+        //请求包残留的数据读取完毕
+        while(numChars > 0 && strcmp(buff, "\n"))
+        {
+            numChars = get_Line(client, buff, sizeof(buff));
+        }
+        
+
+        not_Found(client);
+    }
+    else
+    {
+        if((status.st_mode & S_IFMT) == S_IFDIR)
+        {
+            strcat(path, "/index.html");
+        }
+
+        server_File(client, path);
+    }
+    
+    closesocket(client);
 
     return 0;
 }
