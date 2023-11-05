@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <sys/types.h>
@@ -143,10 +144,36 @@ void unimplement(int client)
 
 void not_Found(int client)
 {
+    //发送404响应
+    char buff[1024];
 
+    strcpy(buff, "HTTP/1.1 404 NOT FOUND\r\n");
+    send(client, buff, strlen(buff), 0);
+
+    strcpy(buff, "Server: nhao/0.1\r\n");
+    send(client, buff, strlen(buff), 0);
+
+    strcpy(buff, "Content-type:text/html\n");
+    send(client, buff, strlen(buff), 0);
+
+    strcpy(buff, "\r\n");
+    send(client, buff, strlen(buff), 0);
+
+    //发送404网页内容
+    sprintf(buff,
+        "<HTML>                                             \
+            <TITLE>NOT FOUND</TITLE>                        \
+                <BODY>                                      \
+                    <H2>The resourse is unav ailable.</H2>  \
+                    <img src=\"404.jpg\" />                 \
+                </BODY>                                     \
+        </HTML>"  );
+
+    send(client, buff, strlen(buff), 0);
 }
 
-void headers(int client)
+//void headers(int client)//, const char* type)
+void headers(int client, const char* type)
 {
     // 发送响应包的头信息
     char buff[1024];
@@ -157,8 +184,12 @@ void headers(int client)
     strcpy(buff, "Server: nhao/0.1\r\n");
     send(client, buff, strlen(buff), 0);
 
-    strcpy(buff, "Content-type:text/html\n");
-    send(client, buff, strlen(buff), 0);
+    // strcpy(buff, "Content-type:text/html\n");
+    // send(client, buff, strlen(buff), 0);
+
+    char buf[1024];
+    sprintf(buf, "Content-Type: %s\r\n", type);
+    send(client, buf, strlen(buf), 0);
 
     strcpy(buff, "\r\n");
     send(client, buff, strlen(buff), 0);
@@ -184,6 +215,36 @@ void cat(int client, FILE* resourse)
 
 }
 
+const char* getHeadType(const char* fileName)
+{
+    const char* ret = "text/html";
+    const char* p = strrchr(fileName, '.');
+    if(!p)
+    {
+        return ret;
+    }
+
+    p++;
+    if(!strcmp(p, "css"))
+    {
+        ret = "text/css";
+    }
+    else if(!strcmp(p, "jpg"))
+    {
+        ret = "image/jpeg";
+    }
+    else if(!strcmp(p, "png"))
+    {
+        ret = "image/png";
+    }
+    else if(!strcmp(p, "js"))
+    {
+        ret = "application/x-javascript";
+    }
+
+    return ret;
+}
+
 void server_File(int client, const char* fileName)
 {
     int numChars = 1;
@@ -196,15 +257,26 @@ void server_File(int client, const char* fileName)
         PRINTF(buff);
     }
 
-    FILE* resourse = fopen(fileName, "r");
+    FILE* resourse = NULL;//= fopen(fileName, "r");
+    if(strcmp(fileName, "htdocs/index.html") == 0)
+    {
+        resourse = fopen(fileName, "r");
+    }
+    else
+    {
+        resourse = fopen(fileName, "rb");
+    }
+
     if(resourse == NULL)
     {
         not_Found(client);
     }
     else
     {
+        
         // 正式发送资源给浏览器
-        headers(client);
+        //headers(client);//, getHeadType(fileName));
+        headers(client, getHeadType(fileName));
 
         // 发送请求的资源信息
         cat(client, resourse);
