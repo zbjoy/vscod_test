@@ -1,6 +1,6 @@
 #pragma once
 
-//Í·ÎÄ¼şÒªÇó
+//Í·ï¿½Ä¼ï¿½Òªï¿½ï¿½
 #include <cmath>
 
 struct vector2 {
@@ -9,40 +9,41 @@ struct vector2 {
 	long long x, y;
 };
 
-//¼Ó·¨
+//ï¿½Ó·ï¿½
 vector2 operator +(vector2 x, vector2 y);
 
-//¼õ·¨
+//ï¿½ï¿½ï¿½ï¿½
 vector2 operator -(vector2 x, vector2 y);
 
-// ³Ë·¨
+// ï¿½Ë·ï¿½
 vector2 operator *(vector2 x, vector2 y);
 vector2 operator *(vector2, float);
 vector2 operator *(float, vector2);
 
-//²æ»ı
+//ï¿½ï¿½ï¿½
 long long cross(vector2 x, vector2 y);
 
-//ÊıÁ¿»ı µã»ı
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 long long dot(vector2 x, vector2 y);
 
-//ËÄÉáÎåÈë³ı·¨
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 long long dv(long long a, long long b);
 
 
-//Ä£³¤Æ½·½
+//Ä£ï¿½ï¿½Æ½ï¿½ï¿½
 long long len(vector2 x);
 
-//Ä£³¤
+//Ä£ï¿½ï¿½
 long long dis(vector2 x);
 
-//ÏòÁ¿³ı·¨
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 vector2 operator /(vector2 x, vector2 y);
 
-//ÏòÁ¿Ä¤
+//ï¿½ï¿½ï¿½ï¿½Ä¤
 vector2 operator %(vector2 x, vector2 y);
 
-//ÏòÁ¿GCD 
+//ï¿½ï¿½ï¿½ï¿½GCD 
 vector2 gcd(vector2 x, vector2 y);
 
+//è´å¡å°”æ›²çº¿
 vector2 calcBezierPoint(float t, vector2 p0, vector2 p1, vector2 p2, vector2 p3);

@@ -8,6 +8,7 @@
 #include <mmsystem.h>
 //#pragma comment(lib, "winmm.lib")
 #include "tools.h"
+#include "vector2.h"
 
 #define WIN_WIDTH 900
 #define WIN_HEIGHT 600
@@ -42,9 +43,20 @@ struct zhiwu
 
     bool catched; //是否被僵尸逮住
     int deadTimer; //死亡记数器
+
+    int timer;
+    int x, y;
 };
 
 struct zhiwu map[3][9];
+
+enum
+{
+    SUNSHINE_DOWN,
+    SUNSHINE_GROUND,
+    SUNSHINE_COLLECT,
+    SUNSHINE_PRODUCT
+};
 
 struct sunshineBall
 {
@@ -56,6 +68,12 @@ struct sunshineBall
 
     float xOff;
     float yOff;
+
+    float t; //贝塞尔曲线的时间点 0 - 1
+    vector2 p1, p2, p3, p4; //四个控制点
+    vector2 pCur; //当前时刻阳光球的位置
+    float speed; //阳光球的速度
+    int status;
 };
 
 //阳光池
@@ -281,34 +299,44 @@ void drawZM()
     }
 }
 
-//场景渲染
-void updateWindow()
+void drawSunshine()
 {
-    BeginBatchDraw();
+    int ballMax = sizeof(balls) / sizeof(balls[0]);
+    for(int i = 0; i < ballMax; i++)
+    {
+        if(balls[i].used)
+        {
+            //putimagePNG(balls[i].x, balls[i].y, &imgSunshineBall[balls[i].frameIndex]);
+            putimagePNG(balls[i].pCur.x, balls[i].pCur.y, &imgSunshineBall[balls[i].frameIndex]);
+        }
 
-    putimage(0, 0, &imgBg);
+    }
+}
 
-    putimagePNG(250, 0, &imgBar);
-
-    //植物渲染
+void drawCards()
+{
     for(int i = 0; i < ZHI_WU_COUNT; i++)
     {
         int x = 338 + i * 64;
         putimagePNG(x, 6, &imgCards[i]);
-    }
+    }    
+}
 
+void drawPlants()
+{
     for(int i = 0; i < 3; i++)
     {
         for(int j = 0; j < 9; j++)
         {
             if(map[i][j].type > 0)
             {
-                int x = 256 + j * 81;
-                int y = 179 + i * 102.6 + 13;
+                // int x = 256 + j * 81;
+                // int y = 179 + i * 102.6 + 13;
                 int plantType = map[i][j].type - 1;
                 int index = map[i][j].frameIndex;
                 //if(imgPlants[plantType][index])
-                putimagePNG(x, y, imgPlants[plantType][index]);
+                //putimagePNG(x, y, imgPlants[plantType][index]);
+                putimagePNG(map[i][j].x, map[i][j].y, imgPlants[plantType][index]);
             }
         }
     }
@@ -321,21 +349,10 @@ void updateWindow()
                 , imgPlants[curPlant - 1][0]);
     }
 
-    int ballMax = sizeof(balls) / sizeof(balls[0]);
-    for(int i = 0; i < ballMax; i++)
-    {
-        if(balls[i].used)
-        {
-            putimagePNG(balls[i].x, balls[i].y, &imgSunshineBall[balls[i].frameIndex]);
-        }
-    }
+}
 
-    char scoreText[8];
-    sprintf(scoreText, "%d", sunshine);
-    outtextxy(278, 67, scoreText);
-
-    drawZM();
-
+void drawBullets()
+{
     int bulletsMax = sizeof(bullets) / sizeof(bullets[0]);
     for(int i = 0; i < bulletsMax; i++)
     {
@@ -355,6 +372,31 @@ void updateWindow()
         }
     }
 
+    char scoreText[8];
+    sprintf(scoreText, "%d", sunshine);
+    outtextxy(278, 67, scoreText);
+}
+
+//场景渲染
+void updateWindow()
+{
+    BeginBatchDraw();
+
+    putimage(0, 0, &imgBg);
+
+    putimagePNG(250, 0, &imgBar);
+
+    //植物渲染
+    drawCards();
+
+    drawPlants();
+
+    drawSunshine();
+
+    drawZM();
+
+    drawBullets();
+
     EndBatchDraw();
 }
 
@@ -365,19 +407,31 @@ void collectSunshine(ExMessage* msg)
     {
         if(balls[i].used)
         {
-            int x = balls[i].x;
-            int y = balls[i].y;
+            // int x = balls[i].x;
+            // int y = balls[i].y;
+            int x = balls[i].pCur.x;
+            int y = balls[i].pCur.y;
             if(msg->x > x && msg->x < x + imgSunshineBall[0].getwidth() && msg->y > y && msg->y < y + imgSunshineBall[0].getheight())
             {
                 //balls[i].used = false;
+                balls[i].status = SUNSHINE_COLLECT;
                 //sunshine += 25;
                 mciSendString("play res/sunshine.mp3", 0, 0, 0);
+                //PlaySound("res/sunshine.mp3"); //需要mav格式
                 //设置阳光偏移量
-                float destY = 0;
-                float destX = 262;
-                float angle = atan((y - destY) / (x - destX));
-                balls[i].xOff = 7 * cos(angle);
-                balls[i].yOff = 7 * sin(angle);
+                // float destY = 0;
+                // float destX = 262;
+                // float angle = atan((y - destY) / (x - destX));
+                // balls[i].xOff = 7 * cos(angle);
+                // balls[i].yOff = 7 * sin(angle);
+
+                balls[i].p1 = balls[i].pCur;
+                balls[i].p4 = vector2(262, 0);
+                balls[i].t = 0;
+                float distance = dis(balls[i].p1 - balls[i].p4);
+                float off = 8; //每次移动的像素
+                balls[i].speed = 1.0 / (distance / off);
+                break;
             }
         }
     }
@@ -418,6 +472,9 @@ void userClick()
             {
                 map[row][col].type = curPlant;
                 map[row][col].frameIndex = 0;
+
+                map[row][col].x = 256 + col * 81; //181有问题
+                map[row][col].y = 179 + row * 102 + 14;
             }
 
 
@@ -447,15 +504,54 @@ void createSunshine()
 
         balls[i].used = true;
         balls[i].frameIndex = 0;
-        balls[i].x = 260 + rand() % (641); //阳光生成范围 260-900
-        balls[i].y = 60;
-        balls[i].destY = 200 + (rand() % 4) * 90;
+        // balls[i].x = 260 + rand() % (641 - imgSunshineBall[0].getwidth()); //阳光生成范围 260-900
+        // balls[i].y = 60;
+        //balls[i].destY = 200 + (rand() % 4) * 90;
         balls[i].timer = 0;
-        balls[i].xOff = 0;
-        balls[i].yOff = 0;
+        // balls[i].xOff = 0;
+        // balls[i].yOff = 0;
+
+        balls[i].status = SUNSHINE_DOWN;
+        balls[i].t = 0;
+        balls[i].p1 = vector2(260 + rand() % (641 - imgSunshineBall[0].getwidth()), 60);
+        balls[i].p4 = vector2(balls[i].p1.x, 200 + (rand() % 4) * 90);
+        int off = 2;
+        float distance = balls[i].p4.y - balls[i].p1.y;
+        balls[i].speed = 1.0 / (distance / off);
     }
+    //生产阳光
+    int ballMax = sizeof(balls) / sizeof(balls[0]);
+    for(int i = 0; i < 3; i++)
+    {
+        for(int j = 0; j < 9; j++)
+        {
+            if(map[i][j].type == XIANG_RI_KUI + 1)
+            {
+                map[i][j].timer++;
+                if(map[i][j].timer > 200)
+                {
+                    map[i][j].timer = 0;
 
+                    int k = 0;
+                    for(; k < ballMax && balls[k].used; k++);
+                    if(k >= ballMax)
+                    {
+                        return;
+                    }
 
+                    balls[k].used = true;
+                    balls[k].p1 = vector2(map[i][j].x, map[i][j].y);
+                    int w = (50 + rand() % 51) * (rand() % 2 ? 1 : -1); 
+                    balls[k].p4 = vector2(map[i][j].x + w, map[i][j].y + imgPlants[XIANG_RI_KUI][0]->getheight() - imgSunshineBall[0].getheight());
+                    balls[k].p2 = vector2(balls[k].p1.x + w * 0.3, balls[k].p1.y - 100);
+                    balls[k].p3 = vector2(balls[k].p1.x + w * 0.7, balls[k].p1.y - 100);
+                    balls[k].status = SUNSHINE_PRODUCT;
+                    balls[k].speed = 0.05;
+                    balls[k].t = 0;
+                }
+            }
+        }
+    }
 }
 
 void updateSunshine()
@@ -466,37 +562,82 @@ void updateSunshine()
         if(balls[i].used)
         {
             balls[i].frameIndex = (balls[i].frameIndex + 1) % 29;
-           
-            if(balls[i].timer == 0)
-            balls[i].y += 3;
-            
-            if(balls[i].y >= balls[i].destY)
+            if(balls[i].status == SUNSHINE_DOWN)
             {
-                //balls[i].used = false;
+                struct sunshineBall* sun = &balls[i];
+                sun->t += sun->speed;
+                sun->pCur = sun->p1 + sun->t * (sun->p4 - sun->p1);
+                if(sun->t >= 1)
+                {
+                    sun->status = SUNSHINE_GROUND;
+                    sun->timer = 0;
+                }
+            }
+            else if(balls[i].status == SUNSHINE_GROUND)
+            {
                 balls[i].timer++;
-                if(balls[i].timer > 50)
+                if(balls[i].timer > 100)
                 {
                     balls[i].used = false;
+                    balls[i].timer = 0;
+                }
+            }
+            else if(balls[i].status == SUNSHINE_COLLECT)
+            {
+                struct sunshineBall* sun = &balls[i];
+                sun->t += sun->speed;
+                sun->pCur = sun->p1 + sun->t * (sun->p4 - sun->p1);
+                if(sun->t > 1)
+                {
+                    sun->used = false;
+                    sunshine += 25;
+                }
+            }
+            else if(balls[i].status == SUNSHINE_PRODUCT)
+            {
+                struct sunshineBall* sun = &balls[i];
+                sun->t += sun->speed;
+                sun->pCur = calcBezierPoint(sun->t, sun->p1, sun->p2, sun->p3, sun->p4);
+                if(sun->t > 1)
+                {
+                    sun->status = SUNSHINE_GROUND;
+                    sun->timer = 0;
                 }
             }
             
-            if(balls[i].xOff)
-            {
-                float destY = 0;
-                float destX = 262;
-                float angle = atan((balls[i].y - destY) / (balls[i].x - destX));
-                balls[i].xOff = 7 * cos(angle);
-                balls[i].yOff = 7 * sin(angle);
-                balls[i].x -= balls[i].xOff;
-                balls[i].y -= balls[i].yOff;
-                if(balls[i].y < 0 || balls[i].x < 262 - imgSunshineBall[0].getwidth())
-                {
-                    balls[i].xOff = 0;
-                    balls[i].yOff = 0;
-                    sunshine += 25;
-                    balls[i].used = false;
-                }
-            }
+
+            // balls[i].frameIndex = (balls[i].frameIndex + 1) % 29;
+           
+            // if(balls[i].timer == 0)
+            // balls[i].y += 3;
+            
+            // if(balls[i].y >= balls[i].destY)
+            // {
+            //     //balls[i].used = false;
+            //     balls[i].timer++;
+            //     if(balls[i].timer > 50)
+            //     {
+            //         balls[i].used = false;
+            //     }
+            // }
+            
+            // if(balls[i].xOff)
+            // {
+            //     float destY = 0;
+            //     float destX = 262;
+            //     float angle = atan((balls[i].y - destY) / (balls[i].x - destX));
+            //     balls[i].xOff = 7 * cos(angle);
+            //     balls[i].yOff = 7 * sin(angle);
+            //     balls[i].x -= balls[i].xOff;
+            //     balls[i].y -= balls[i].yOff;
+            //     if(balls[i].y < 0 || balls[i].x < 262 - imgSunshineBall[0].getwidth())
+            //     {
+            //         balls[i].xOff = 0;
+            //         balls[i].yOff = 0;
+            //         sunshine += 25;
+            //         balls[i].used = false;
+            //     }
+            // }
         }
         
     }
@@ -755,7 +896,7 @@ void updateBullet()
     }
 }
 
-void updateGame()
+void updatePlant()
 {
     for(int i = 0; i < 3; i++)
     {
@@ -771,6 +912,11 @@ void updateGame()
             }
         }
     }
+}
+
+void updateGame()
+{
+    updatePlant(); //改变植物
 
     createSunshine(); //创建阳光
     updateSunshine(); //更新阳光状态
